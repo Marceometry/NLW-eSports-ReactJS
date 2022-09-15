@@ -1,16 +1,23 @@
-import { MagnifyingGlassPlus } from 'phosphor-react'
+import { useEffect, useState } from 'react'
+import { CreateAdBanner, GameBanner } from './components'
 import logoImg from './assets/logo.svg'
 
-const games = [
-  'League of Legends',
-  'Dota 2',
-  'Counter Strike',
-  'Apex Legends',
-  'Fortnite',
-  'World of Warcraft',
-]
+type Game = {
+  id: string
+  title: string
+  bannerUrl: string
+  _count: { ads: number }
+}
 
 export function App() {
+  const [gameList, setGameList] = useState<Game[]>([])
+
+  useEffect(() => {
+    fetch('http://localhost:3333/games')
+      .then((res) => res.json())
+      .then(setGameList)
+  }, [])
+
   return (
     <div className='max-w-[1244px] my-20 mx-auto flex flex-col items-center'>
       <img src={logoImg} alt='Logo NLW eSports' />
@@ -24,35 +31,17 @@ export function App() {
       </h1>
 
       <div className='grid grid-cols-6 gap-6'>
-        {games.map((game, index) => (
-          <a href='' className='relative rounded-lg overflow-hidden'>
-            <img src={`/game-${index + 1}.png`} alt={`Game ${index + 1}`} />
-
-            <div className='w-full pt-16 pb-4 px-4 bg-game-gradient absolute bottom-0 left-0'>
-              <strong className='font-bold text-white block'>{game}</strong>
-              <span className='text-zinc-300 text-sm'>4 anúncios</span>
-            </div>
-          </a>
+        {gameList.map((game) => (
+          <GameBanner
+            key={game.id}
+            title={game.title}
+            adsCount={game._count.ads}
+            bannerUrl={game.bannerUrl}
+          />
         ))}
       </div>
 
-      <div className='pt-1 mt-8 bg-nlw-gradient self-stretch rounded-lg overflow-hidden'>
-        <div className='bg-[#2A2634] px-8 py-6 flex justify-between items-center'>
-          <div>
-            <strong className='text-white font-black text-2xl'>
-              Não encontrou seu duo?
-            </strong>
-            <span className='text-zinc-400 block'>
-              Publique um anúncio para encontrar novos players!
-            </span>
-          </div>
-
-          <button className='py-3 px-4 rounded text-white bg-violet-500 hover:bg-violet-600 transition-colors flex items-center gap-3'>
-            <MagnifyingGlassPlus size={24} />
-            Publicar anúncio
-          </button>
-        </div>
-      </div>
+      <CreateAdBanner />
     </div>
   )
 }
